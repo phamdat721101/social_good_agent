@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Press Start 2P';
+  src: url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+}
+
+.pixel-font {
+  font-family: 'Press Start 2P', cursive;
+  text-shadow: 2px 2px 0px #000;
+}
+
+.pixel-border {
+  box-shadow: 
+    -4px 0 0 0 #000,
+    4px 0 0 0 #000,
+    0 -4px 0 0 #000,
+    0 4px 0 0 #000;
+}
+
+.pixel-button {
+  position: relative;
+  transition: all 0.1s ease;
+}
+
+.pixel-button:active {
+  transform: translateY(4px);
+}
+
+.pixel-button::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+  pointer-events: none;
+}
+
+.loading-pixel {
+  animation: pixelate 1s infinite steps(8);
+}
+
+@keyframes pixelate {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.pikachu-gradient {
+  background: linear-gradient(45deg, #FFD700, #FFA500);
+}
+
+.electric-flash {
+  animation: flash 2s infinite;
+}
+
+@keyframes flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
