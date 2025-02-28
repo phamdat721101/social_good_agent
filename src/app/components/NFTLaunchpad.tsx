@@ -10,8 +10,9 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function NFTLaunchpad() {
-  // Email registration state
+  // Registration state
   const [email, setEmail] = useState('');
+  const [walletAddress, setWalletAddress] = useState('');
   const [isRegistered, setIsRegistered] = useState(false);
   const [registrationStatus, setRegistrationStatus] = useState('');
 
@@ -49,27 +50,27 @@ export default function NFTLaunchpad() {
     };
   }, [isAnalyzing]);
 
-  // Register the user's email and store it to Supabase along with a generated user ID
+  // Register the user's email and wallet address, then store it to Supabase along with a generated user ID
   const handleRegister = async () => {
-    if (!email) {
-      setRegistrationStatus('Please enter your email address.');
+    if (!email || !walletAddress) {
+      setRegistrationStatus('Please enter both your email address and wallet address.');
       return;
     }
     setLoading(true);
-    setRegistrationStatus('Registering your email...');
+    setRegistrationStatus('Registering your information...');
     try {
       const userId = crypto.randomUUID();
       const { error } = await supabase
         .from('users')
-        .insert([{ id: userId, email, wallet_address:"0xnimpad" }]);
+        .insert([{ id: userId, email, wallet_address: walletAddress }]);
       if (error) {
         setRegistrationStatus(`Error: ${error.message}`);
       } else {
-        setRegistrationStatus('Success! Your email has been registered.');
+        setRegistrationStatus('Success! Your information has been registered.');
         setIsRegistered(true);
       }
     } catch (error: any) {
-      console.log("Register error: ", error)
+      console.log('Register error: ', error);
       setRegistrationStatus(`Error: ${error.message}`);
     } finally {
       setLoading(false);
@@ -85,7 +86,7 @@ export default function NFTLaunchpad() {
   // Simulate minting an NFT (now that registration is complete)
   const handleMint = async () => {
     if (!isRegistered) {
-      setStatus('Please register your email first.');
+      setStatus('Please register your email and wallet address first.');
       return;
     }
     try {
@@ -122,13 +123,11 @@ export default function NFTLaunchpad() {
     }
   };
 
-  // Show email registration form until the user is registered
+  // Show registration form until the user is registered
   if (!isRegistered) {
     return (
       <div className="max-w-md mx-auto p-6 space-y-4">
-        <h1 className="text-xl font-bold text-center">
-          Register for NFT Minting
-        </h1>
+        <h1 className="text-xl font-bold text-center">Register for NFT Minting</h1>
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700">
             Email Address
@@ -143,14 +142,28 @@ export default function NFTLaunchpad() {
             disabled={loading}
           />
         </div>
+        <div>
+          <label htmlFor="wallet" className="block text-sm font-medium text-gray-700">
+            Wallet Address
+          </label>
+          <input
+            id="wallet"
+            type="text"
+            value={walletAddress}
+            onChange={(e) => setWalletAddress(e.target.value)}
+            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+            placeholder="0x..."
+            disabled={loading}
+          />
+        </div>
         <button
           onClick={handleRegister}
-          disabled={loading || !email}
+          disabled={loading || !email || !walletAddress}
           className={`w-full p-2 rounded-md text-white ${
             loading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'
           }`}
         >
-          {loading ? 'Processing...' : 'Register Email'}
+          {loading ? 'Processing...' : 'Register'}
         </button>
         {registrationStatus && (
           <div
@@ -178,9 +191,7 @@ export default function NFTLaunchpad() {
                 Twitter Profile
               </label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
-                  @
-                </span>
+                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">@</span>
                 <input
                   id="twitter-handle"
                   type="text"
@@ -211,14 +222,7 @@ export default function NFTLaunchpad() {
                     fill="none"
                     viewBox="0 0 24 24"
                   >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path
                       className="opacity-75"
                       fill="currentColor"
@@ -268,55 +272,23 @@ export default function NFTLaunchpad() {
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
-                    <div
-                      className={`ai-status-indicator ${
-                        previewStep >= 1 ? 'ai-status-success' : 'bg-gray-300'
-                      }`}
-                    />
-                    <span
-                      className={`text-xs ${
-                        previewStep >= 1 ? 'text-gray-700' : 'text-gray-400'
-                      }`}
-                    >
-                      Profile Analysis
-                    </span>
+                    <div className={`ai-status-indicator ${previewStep >= 1 ? 'ai-status-success' : 'bg-gray-300'}`}></div>
+                    <span className={`text-xs ${previewStep >= 1 ? 'text-gray-700' : 'text-gray-400'}`}>Profile Analysis</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div
-                      className={`ai-status-indicator ${
-                        previewStep >= 2 ? 'ai-status-success' : 'bg-gray-300'
-                      }`}
-                    />
-                    <span
-                      className={`text-xs ${
-                        previewStep >= 2 ? 'text-gray-700' : 'text-gray-400'
-                      }`}
-                    >
-                      AI Parameter Generation
-                    </span>
+                    <div className={`ai-status-indicator ${previewStep >= 2 ? 'ai-status-success' : 'bg-gray-300'}`}></div>
+                    <span className={`text-xs ${previewStep >= 2 ? 'text-gray-700' : 'text-gray-400'}`}>AI Parameter Generation</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div
-                      className={`ai-status-indicator ${
-                        previewStep >= 3 ? 'ai-status-success' : 'bg-gray-300'
-                      }`}
-                    />
-                    <span
-                      className={`text-xs ${
-                        previewStep >= 3 ? 'text-gray-700' : 'text-gray-400'
-                      }`}
-                    >
-                      NFT Ready
-                    </span>
+                    <div className={`ai-status-indicator ${previewStep >= 3 ? 'ai-status-success' : 'bg-gray-300'}`}></div>
+                    <span className={`text-xs ${previewStep >= 3 ? 'text-gray-700' : 'text-gray-400'}`}>NFT Ready</span>
                   </div>
                 </div>
                 {previewStep === 3 && (
                   <button
                     onClick={handleMint}
                     disabled={loading}
-                    className={`ai-button ai-button-secondary w-full ${
-                      loading ? 'opacity-70 cursor-not-allowed' : ''
-                    }`}
+                    className={`ai-button ai-button-secondary w-full ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
                   >
                     {loading ? 'Processing...' : 'Mint NFT'}
                   </button>
@@ -328,22 +300,14 @@ export default function NFTLaunchpad() {
       </div>
 
       {status && (
-        <div
-          className={`p-4 rounded-lg ${
-            status.includes('Error')
-              ? 'bg-red-50 text-red-700 border border-red-200'
-              : 'bg-blue-50 text-blue-700 border border-blue-200'
-          }`}
-        >
+        <div className={`p-4 rounded-lg ${status.includes('Error') ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-blue-50 text-blue-700 border border-blue-200'}`}>
           <p className="text-center text-sm">{status}</p>
         </div>
       )}
 
       {mintedNFT && (
         <div className="ai-card p-6 md:p-8 space-y-4">
-          <h2 className="text-xl font-semibold text-center text-gray-800">
-            NFT Successfully Minted
-          </h2>
+          <h2 className="text-xl font-semibold text-center text-gray-800">NFT Successfully Minted</h2>
           <div className="ai-divider"></div>
           <div className="space-y-3">
             <div className="flex justify-between items-center py-2">
@@ -362,9 +326,7 @@ export default function NFTLaunchpad() {
                 rel="noopener noreferrer"
                 className="text-indigo-600 hover:text-indigo-800 ai-truncate ml-2 font-mono"
               >
-                {`${mintedNFT.transactionHash.slice(0, 6)}...${mintedNFT.transactionHash.slice(
-                  -4
-                )}`}
+                {`${mintedNFT.transactionHash.slice(0, 6)}...${mintedNFT.transactionHash.slice(-4)}`}
               </a>
             </div>
             <div className="flex justify-between items-center py-2">
@@ -392,19 +354,12 @@ export default function NFTLaunchpad() {
           </div>
           <div className="mt-6">
             <a
-              href={`https://twitter.com/intent/tweet?text=I just minted an AI-generated NFT! Check it out: ${encodeURIComponent(
-                mintedNFT.openseaLink
-              )}`}
+              href={`https://twitter.com/intent/tweet?text=I just minted an AI-generated NFT! Check it out: ${encodeURIComponent(mintedNFT.openseaLink)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="ai-button ai-button-primary w-full flex items-center justify-center"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 mr-2"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723 10.054 10.054 0 01-3.127 1.184 4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
               </svg>
               Share on Twitter
