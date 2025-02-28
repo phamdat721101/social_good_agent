@@ -1,9 +1,11 @@
+"use client"
 import './globals.css'
+import { Providers } from './providers'
 
-export const metadata = {
-  title: 'AI NFT Launchpad',
-  description: 'Mint NFTs based on Twitter interactions',
-}
+// export const metadata = {
+//   title: 'AI NFT Launchpad',
+//   description: 'Mint NFTs based on Twitter interactions',
+// }
 
 export default function RootLayout({
   children,
@@ -12,7 +14,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <Providers>
+          {children}
+        </Providers>
+      </body>
     </html>
   )
 }
